@@ -98,6 +98,63 @@ class InvoiceForm(forms.ModelForm):
         model = Invoice
         fields = ['title', 'dueDate', 'paymentTerms', 'status', 'notes']
 
+class QuoteForm(forms.ModelForm):
+    THE_OPTIONS = [
+    ('14 days', '14 days'),
+    ('30 days', '30 days'),
+    ('60 days', '60 days'),
+    ]
+    STATUS_OPTIONS = [
+    ('CURRENT', 'CURRENT'),
+    ('OVERDUE', 'OVERDUE'),
+    ('PAID', 'PAID'),
+    ]
+
+    title = forms.CharField(
+                    required = True,
+                    label='Quote Name or Title',
+                    widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter Invoice Title'}),)
+    AcceptationTerms = forms.ChoiceField(
+                    choices = THE_OPTIONS,
+                    required = True,
+                    label='Select Acceptation Terms',
+                    widget=forms.Select(attrs={'class': 'form-control mb-3'}),)
+    status = forms.ChoiceField(
+                    choices = STATUS_OPTIONS,
+                    required = True,
+                    label='Change Invoice Status',
+                    widget=forms.Select(attrs={'class': 'form-control mb-3'}),)
+    notes = forms.CharField(
+                    required = True,
+                    label='Enter any notes for the client',
+                    widget=forms.Textarea(attrs={'class': 'form-control mb-3'}))
+
+    dueDate = forms.DateField(
+                        required = True,
+                        label='Quote Due',
+                        widget=DateInput(attrs={'class': 'form-control mb-3'}),)
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('title', css_class='form-group col-md-6'),
+                Column('dueDate', css_class='form-group col-md-6'),
+                css_class='form-row'),
+            Row(
+                Column('AcceptationTerms', css_class='form-group col-md-6'),
+                Column('status', css_class='form-group col-md-6'),
+                css_class='form-row'),
+            'notes',
+
+            Submit('submit', ' EDIT QUOTE '))
+
+    class Meta:
+        model = Quote
+        fields = ['title', 'dueDate', 'AcceptationTerms', 'status', 'notes']
+
 
 class SettingsForm(forms.ModelForm):
     class Meta:

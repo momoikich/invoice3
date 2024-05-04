@@ -81,6 +81,13 @@ def dashboard(request):
     return render(request, 'invoice/dashboard.html', context)
 
 
+@login_required
+def quotes(request):
+    context = {}
+    invoices = Quote.objects.all()
+    context['quotes'] = invoices
+
+    return render(request, 'invoice/quotes.html', context)
 
 
 @login_required
@@ -148,6 +155,16 @@ def createInvoice(request):
     inv = Invoice.objects.get(number=number)
     return redirect('create-build-invoice', slug=inv.slug)
 
+@login_required
+def createQuote(request):
+    #create a blank invoice ....
+    number = 'QUO-'+str(uuid4()).split('-')[1]
+    newQuote = Quote.objects.create(number=number)
+    newQuote.save()
+
+    quo = Quote.objects.get(number=number)
+    return redirect('create-build-invoice', slug=quo.slug)
+
 
 
 
@@ -172,6 +189,64 @@ def createBuildInvoice(request, slug):
         prod_form  = ProductForm()
         inv_form = InvoiceForm(instance=invoice)
         client_form = ClientSelectForm(initial_client=invoice.client)
+        context['prod_form'] = prod_form
+        context['inv_form'] = inv_form
+        context['client_form'] = client_form
+        return render(request, 'invoice/create-invoice.html', context)
+
+    if request.method == 'POST':
+        prod_form  = ProductForm(request.POST)
+        inv_form = InvoiceForm(request.POST, instance=invoice)
+        client_form = ClientSelectForm(request.POST, initial_client=invoice.client, instance=invoice)
+
+        if prod_form.is_valid():
+            obj = prod_form.save(commit=False)
+            obj.invoice = invoice
+            obj.save()
+
+            messages.success(request, "Invoice product added succesfully")
+            return redirect('create-build-invoice', slug=slug)
+        elif inv_form.is_valid and 'paymentTerms' in request.POST:
+            inv_form.save()
+
+            messages.success(request, "Invoice updated succesfully")
+            return redirect('create-build-invoice', slug=slug)
+        elif client_form.is_valid() and 'client' in request.POST:
+
+            client_form.save()
+            messages.success(request, "Client added to invoice succesfully")
+            return redirect('create-build-invoice', slug=slug)
+        else:
+            context['prod_form'] = prod_form
+            context['inv_form'] = inv_form
+            context['client_form'] = client_form
+            messages.error(request,"Problem processing your request")
+            return render(request, 'invoice/create-invoice.html', context)
+
+
+    return render(request, 'invoice/create-invoice.html', context)
+
+def createBuildQuote(request, slug):
+    #fetch that invoice
+    try:
+        quote = Quote.objects.get(slug=slug)
+        pass
+    except:
+        messages.error(request, 'Something went wrong')
+        return redirect('quotes')
+
+    #fetch all the products - related to this invoice
+    products = Product.objects.filter(quote=quote)
+
+
+    context = {}
+    context['quote'] = quote
+    context['products'] = products
+
+    if request.method == 'GET':
+        prod_form  = ProductForm()
+        inv_form = InvoiceForm(instance=quote)
+        client_form = ClientSelectForm(initial_client=quote.client)
         context['prod_form'] = prod_form
         context['inv_form'] = inv_form
         context['client_form'] = client_form
