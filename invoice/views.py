@@ -225,7 +225,7 @@ def viewPDFInvoice(request, slug):
     products = Product.objects.filter(invoice=invoice)
 
     #Get Client Settings
-    p_settings = Settings.objects.get(clientName='Skolo Online Learning')
+    p_settings = Settings.objects.get(clientName='IKICH')
 
     #Calculate the Invoice Total
     invoiceCurrency = ''
@@ -262,7 +262,7 @@ def viewDocumentInvoice(request, slug):
     products = Product.objects.filter(invoice=invoice)
 
     #Get Client Settings
-    p_settings = Settings.objects.get(clientName='Skolo Online Learning')
+    p_settings = Settings.objects.get(clientName='IKICH')
 
     #Calculate the Invoice Total
     invoiceTotal = 0.0
@@ -302,7 +302,7 @@ def viewDocumentInvoice(request, slug):
       #Javascript delay is optional
 
     #Remember that location to wkhtmltopdf
-    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf="C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe")
 
     #IF you have CSS to add to template
     css1 = os.path.join(settings.CSS_LOCATION, 'assets', 'css', 'bootstrap.min.css')
@@ -332,7 +332,7 @@ def emailDocumentInvoice(request, slug):
     products = Product.objects.filter(invoice=invoice)
 
     #Get Client Settings
-    p_settings = Settings.objects.get(clientName='Skolo Online Learning')
+    p_settings = Settings.objects.get(clientName='IKICH')
 
     #Calculate the Invoice Total
     invoiceTotal = 0.0
@@ -372,7 +372,7 @@ def emailDocumentInvoice(request, slug):
       #Javascript delay is optional
 
     #Remember that location to wkhtmltopdf
-    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf='C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe')
 
     #Saving the File
     filepath = os.path.join(settings.MEDIA_ROOT, 'client_invoices')
@@ -414,7 +414,7 @@ def deleteInvoice(request, slug):
 
 
 def companySettings(request):
-    company = Settings.objects.get(clientName='Skolo Online Learning')
+    company = Settings.objects.get(clientName='IKICH')
     context = {'company': company}
     return render(request, 'invoice/company-settings.html', context)
 

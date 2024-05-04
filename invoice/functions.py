@@ -5,14 +5,14 @@ from django.conf import settings
 
 def emailInvoiceClient(to_email, from_client, filepath):
     from_email = settings.EMAIL_HOST_USER
-    subject = '[Skolo] Invoice Notification'
+    subject = '[IKICH] Invoice Notification'
     body = """
     Good day,
 
     Please find attached invoice from {} for your immediate attention.
 
     regards,
-    Skolo Online Learning
+    IKICH software service team
     """.format(from_client)
 
     message = EmailMessage(subject, body, from_email, [to_email])
