@@ -163,7 +163,7 @@ def createQuote(request):
     newQuote.save()
 
     quo = Quote.objects.get(number=number)
-    return redirect('create-build-invoice', slug=quo.slug)
+    return redirect('create-build-quote', slug=quo.slug)
 
 
 
@@ -245,41 +245,41 @@ def createBuildQuote(request, slug):
 
     if request.method == 'GET':
         prod_form  = ProductForm()
-        inv_form = InvoiceForm(instance=quote)
+        quo_form = QuoteForm(instance=quote)
         client_form = ClientSelectForm(initial_client=quote.client)
         context['prod_form'] = prod_form
-        context['inv_form'] = inv_form
+        context['quo_form'] = quo_form
         context['client_form'] = client_form
-        return render(request, 'invoice/create-invoice.html', context)
+        return render(request, 'invoice/create-quote.html', context)
 
     if request.method == 'POST':
         prod_form  = ProductForm(request.POST)
-        inv_form = InvoiceForm(request.POST, instance=invoice)
-        client_form = ClientSelectForm(request.POST, initial_client=invoice.client, instance=invoice)
+        quo_form = QuoteForm(request.POST, instance=quote)
+        client_form = ClientSelectForm(request.POST, initial_client=quote.client, instance=quote)
 
         if prod_form.is_valid():
             obj = prod_form.save(commit=False)
-            obj.invoice = invoice
+            obj.quote = quote
             obj.save()
 
-            messages.success(request, "Invoice product added succesfully")
-            return redirect('create-build-invoice', slug=slug)
-        elif inv_form.is_valid and 'paymentTerms' in request.POST:
-            inv_form.save()
+            messages.success(request, "Quote product added succesfully")
+            return redirect('create-build-quote', slug=slug)
+        elif quo_form.is_valid and 'AcceptationTerms' in request.POST:
+            quo_form.save()
 
-            messages.success(request, "Invoice updated succesfully")
-            return redirect('create-build-invoice', slug=slug)
+            messages.success(request, "Quote updated succesfully")
+            return redirect('create-build-quote', slug=slug)
         elif client_form.is_valid() and 'client' in request.POST:
 
             client_form.save()
-            messages.success(request, "Client added to invoice succesfully")
-            return redirect('create-build-invoice', slug=slug)
+            messages.success(request, "Client added to quote succesfully")
+            return redirect('create-build-quote', slug=slug)
         else:
             context['prod_form'] = prod_form
-            context['inv_form'] = inv_form
+            context['quo_form'] = quo_form
             context['client_form'] = client_form
             messages.error(request,"Problem processing your request")
-            return render(request, 'invoice/create-invoice.html', context)
+            return render(request, 'invoice/create-quote.html', context)
 
 
     return render(request, 'invoice/create-invoice.html', context)
@@ -470,6 +470,189 @@ def emailDocumentInvoice(request, slug):
     return redirect('create-build-invoice', slug=slug)
 
 
+def viewPDFQuote(request, slug):
+    #fetch that invoice
+    try:
+        quote = Quote.objects.get(slug=slug)
+        pass
+    except:
+        messages.error(request, 'Something went wrong')
+        return redirect('quotes')
+
+    #fetch all the products - related to this invoice
+    products = Product.objects.filter(quote=quote)
+
+    #Get Client Settings
+    p_settings = Settings.objects.get(clientName='IKICH')
+
+    #Calculate the Invoice Total
+    quoteCurrency = ''
+    quoteTotal = 0.0
+    if len(products) > 0:
+        for x in products:
+            y = float(x.quantity) * float(x.price)
+            quoteTotal += y
+            quoteCurrency = x.currency
+
+
+
+    context = {}
+    context['quote'] = quote
+    context['products'] = products
+    context['p_settings'] = p_settings
+    context['quoteTotal'] = "{:.2f}".format(quoteTotal)
+    context['quoteCurrency'] = quoteCurrency
+
+    return render(request, 'invoice/quote-template.html', context)
+
+
+
+def viewDocumentQuote(request, slug):
+    #fetch that invoice
+    try:
+        quote = Quote.objects.get(slug=slug)
+        pass
+    except:
+        messages.error(request, 'Something went wrong')
+        return redirect('quotes')
+
+    #fetch all the products - related to this invoice
+    products = Product.objects.filter(quote=quote)
+
+    #Get Client Settings
+    p_settings = Settings.objects.get(clientName='IKICH')
+
+    #Calculate the Invoice Total
+    quoteTotal = 0.0
+    if len(products) > 0:
+        for x in products:
+            y = float(x.quantity) * float(x.price)
+            quoteTotal += y
+
+
+
+    context = {}
+    context['quote'] = quote
+    context['products'] = products
+    context['p_settings'] = p_settings
+    context['quoteTotal'] = "{:.2f}".format(quoteTotal)
+
+    #The name of your PDF file
+    filename = '{}.pdf'.format(quote.uniqueId)
+
+    #HTML FIle to be converted to PDF - inside your Django directory
+    template = get_template('invoice/pdfquote-template.html')
+
+
+    #Render the HTML
+    html = template.render(context)
+
+    #Options - Very Important [Don't forget this]
+    options = {
+          'encoding': 'UTF-8',
+          'javascript-delay':'10', #Optional
+          'enable-local-file-access': None, #To be able to access CSS
+          'page-size': 'A4',
+          'custom-header' : [
+              ('Accept-Encoding', 'gzip')
+          ],
+      }
+      #Javascript delay is optional
+
+    #Remember that location to wkhtmltopdf
+    config = pdfkit.configuration(wkhtmltopdf="C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe")
+
+    #IF you have CSS to add to template
+    css1 = os.path.join(settings.CSS_LOCATION, 'assets', 'css', 'bootstrap.min.css')
+    css2 = os.path.join(settings.CSS_LOCATION, 'assets', 'css', 'dashboard.css')
+
+    #Create the file
+    file_content = pdfkit.from_string(html, False, configuration=config, options=options)
+
+    #Create the HTTP Response
+    response = HttpResponse(file_content, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename = {}'.format(filename)
+
+    #Return
+    return response
+
+
+def emailDocumentQuote(request, slug):
+    #fetch that invoice
+    try:
+        quote = Quote.objects.get(slug=slug)
+        pass
+    except:
+        messages.error(request, 'Something went wrong')
+        return redirect('quotes')
+
+    #fetch all the products - related to this invoice
+    products = Product.objects.filter(quote=quote)
+
+    #Get Client Settings
+    p_settings = Settings.objects.get(clientName='IKICH')
+
+    #Calculate the Invoice Total
+    quoteTotal = 0.0
+    if len(products) > 0:
+        for x in products:
+            y = float(x.quantity) * float(x.price)
+            quoteTotal += y
+
+
+
+    context = {}
+    context['quote'] = quote
+    context['products'] = products
+    context['p_settings'] = p_settings
+    context['quoteTotal'] = "{:.2f}".format(quoteTotal)
+
+    #The name of your PDF file
+    filename = '{}.pdf'.format(quote.uniqueId)
+
+    #HTML FIle to be converted to PDF - inside your Django directory
+    template = get_template('invoice/pdfquote-template.html')
+
+
+    #Render the HTML
+    html = template.render(context)
+
+    #Options - Very Important [Don't forget this]
+    options = {
+          'encoding': 'UTF-8',
+          'javascript-delay':'1000', #Optional
+          'enable-local-file-access': None, #To be able to access CSS
+          'page-size': 'A4',
+          'custom-header' : [
+              ('Accept-Encoding', 'gzip')
+          ],
+      }
+      #Javascript delay is optional
+
+    #Remember that location to wkhtmltopdf
+    config = pdfkit.configuration(wkhtmltopdf='C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe')
+
+    #Saving the File
+    filepath = os.path.join(settings.MEDIA_ROOT, 'client_quotes')
+    os.makedirs(filepath, exist_ok=True)
+    pdf_save_path = filepath+filename
+    #Save the PDF
+    pdfkit.from_string(html, pdf_save_path, configuration=config, options=options)
+
+
+    #send the emails to client
+    to_email = quote.client.emailAddress
+    from_client = p_settings.clientName
+    emailQuoteClient(to_email, from_client, pdf_save_path)
+
+    quote.status = 'EMAIL_SENT'
+    quote.save()
+
+    #Email was send, redirect back to view - invoice
+    messages.success(request, "Email sent to the client succesfully")
+    return redirect('create-build-quote', slug=slug)
+
+
 
 
 
@@ -484,6 +667,15 @@ def deleteInvoice(request, slug):
         return redirect('invoices')
 
     return redirect('invoices')
+
+def deleteQuote(request, slug):
+    try:
+        Quote.objects.get(slug=slug).delete()
+    except:
+        messages.error(request, 'Something went wrong')
+        return redirect('quotes')
+
+    return redirect('quotes')
 
 
 

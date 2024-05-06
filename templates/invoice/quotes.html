@@ -49,10 +49,10 @@
         <td>{{quote.dueDate}}</td>
         <td>{{quote.status}}</td>
         <td>
-          <a href="{% url 'delete-invoice' quote.slug %}"><button class="btn btn-danger"> DELETE </button></a>
+          <a href="{% url 'delete-quote' quote.slug %}"><button class="btn btn-danger"> DELETE </button></a>
         </td>
         <td>
-          <a href="{% url 'create-build-invoice' quote.slug %}"><button class="btn btn-primary"> VIEW </button></a>
+          <a href="{% url 'create-build-quote' quote.slug %}"><button class="btn btn-primary"> VIEW </button></a>
         </td>
       </tr>
         {% endfor %}

@@ -113,7 +113,7 @@ class QuoteForm(forms.ModelForm):
     title = forms.CharField(
                     required = True,
                     label='Quote Name or Title',
-                    widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter Invoice Title'}),)
+                    widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter Quote Title'}),)
     AcceptationTerms = forms.ChoiceField(
                     choices = THE_OPTIONS,
                     required = True,
@@ -122,7 +122,7 @@ class QuoteForm(forms.ModelForm):
     status = forms.ChoiceField(
                     choices = STATUS_OPTIONS,
                     required = True,
-                    label='Change Invoice Status',
+                    label='Change Quote Status',
                     widget=forms.Select(attrs={'class': 'form-control mb-3'}),)
     notes = forms.CharField(
                     required = True,
