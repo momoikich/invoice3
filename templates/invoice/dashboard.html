@@ -18,10 +18,9 @@
 
 
   <div class="container">
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="row">
-          <div class="col-lg-12">
+      <div class="d-flex justify-content-between">
+        
+          <div class="col-md-5">
 
             <div class="card mb-5">
                 <h5 class="card-header">Invoices</h5>
@@ -40,17 +39,119 @@
                   </div>
                 </div>
           </div>
-        </div>
-      </div>
+          <div class="col-md-5">
 
+            <div class="card mb-5">
+                <h5 class="card-header">Invoices</h5>
+                <div class="card-body">
+                  <h5 class="card-title">Total Number of Invoices: {{invoices}}</h5>
+                  <h5 class="card-title">Paid Invoices: {{paidInvoices}}</h5>
+                  <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">
+                    <div class="chart">
+                      <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
+                    </div>
+                  </div>
+                  <a href="{% url 'invoices' %}" class="btn btn-primary btn-lg">View Invoices</a>
+                </div>
+              </div>
 
-      <div class="col-lg-6">
-        <div class="p-5">
-          <img class=img-fluid  src="{% static 'assets/img/empty.svg' %}" alt="Skolo Online Learning">
-        </div>
+              <div class="card mb-5">
+                  <h5 class="card-header">Products</h5>
+                  <div class="card-body">
+                    <h5 class="card-title">Total Number of products: {{products}}</h5>
+                    <a href="{% url 'products' %}" class="btn btn-primary btn-lg">View Products</a>
+                  </div>
+                </div>
+          </div>
       </div>
-    </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+  <script>
+    Chart.defaults.backgroundColor = '#9BD0F5';
+    Chart.defaults.borderColor = '#36A2EB';
+    Chart.defaults.color = '#000';
+
+    var ctx = document.getElementById("chart-bars").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["M", "T", "W", "T", "F", "S", "S"],
+        datasets: [{
+          label: "Sales",
+          tension: 0.4,
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: '#9BD0F5',
+          data: [50, 20, 10, 22, 50, 10, 40],
+          maxBarThickness: 6
+        }, ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 500,
+              beginAtZero: true,
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+              color: "#fff"
+            },
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+  </script>
 
 
 

@@ -69,12 +69,14 @@ def login(request):
 
 @login_required
 def dashboard(request):
+    products = Product.objects.all().count()
     clients = Client.objects.all().count()
     invoices = Invoice.objects.all().count()
     paidInvoices = Invoice.objects.filter(status='PAID').count()
 
 
     context = {}
+    context['products'] = products
     context['clients'] = clients
     context['invoices'] = invoices
     context['paidInvoices'] = paidInvoices
