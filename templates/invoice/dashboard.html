@@ -20,7 +20,7 @@
 							<h2>{{products}}</h2>
 							<p>Products</p>
 						</div>
-						<i class='bx bx-trending-up icon' ><a href="{% url 'products'%}">View Clients</a></i>
+						<i class='bx bx-trending-up icon' ><a href="{% url 'products'%}">View Products</a></i>
 					</div>
 					<span class="progress" data-value="40%"></span>
 					<span class="label">40%</span>
@@ -39,13 +39,13 @@
 				<div class="card">
 					<div class="head">
 						<div>
-							<h2>465</h2>
-							<p>Pageviews</p>
+							<h2>{{paidInvoices}}</h2>
+							<p>Paid Invoices</p>
 						</div>
-						<i class='bx bx-trending-up icon' ></i>
+						<i class='bx bx-trending-up icon' ><a href="{% url 'invoices'%}">View Invoices</a></i>
 					</div>
-					<span class="progress" data-value="30%"></span>
-					<span class="label">30%</span>
+					<span class="progress" data-value="{{pourcentagePaidinvoices}}"></span>
+					<span class="label">{{pourcentagePaidinvoices}}</span>
 				</div>
 				<div class="card">
 					<div class="head">

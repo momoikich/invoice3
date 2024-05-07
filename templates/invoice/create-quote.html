@@ -49,7 +49,7 @@
                     <th>Description</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Related Invoice</th>
+                    <th>Related Quote</th>
 
                   </tr>
                 </thead>
@@ -61,7 +61,7 @@
                   <td>{{product.description}}</td>
                   <td>{{product.quantity}}</td>
                   <td>{{product.currency}} {{product.price}}</td>
-                  <td>{{product.invoice.number}}</td>
+                  <td>{{product.quote.number}}</td>
                 </tr>
                   {% endfor %}
 

@@ -73,13 +73,15 @@ def dashboard(request):
     clients = Client.objects.all().count()
     invoices = Invoice.objects.all().count()
     paidInvoices = Invoice.objects.filter(status='PAID').count()
-
+    pourcentage = int((float(paidInvoices)/invoices)*100)    
+    pourcentage = str(pourcentage) + "%"
 
     context = {}
     context['products'] = products
     context['clients'] = clients
     context['invoices'] = invoices
     context['paidInvoices'] = paidInvoices
+    context['pourcentagePaidinvoices'] = pourcentage
     return render(request, 'invoice/dashboard.html', context)
 
 
