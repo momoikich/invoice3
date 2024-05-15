@@ -6,6 +6,8 @@ from django.conf import settings
 from .forms import *
 from .models import *
 from .functions import *
+from django.db.models.functions import TruncDate
+from django.db.models import Count
 
 from django.contrib.auth.models import User, auth
 from random import randint
@@ -75,13 +77,24 @@ def dashboard(request):
     paidInvoices = Invoice.objects.filter(status='PAID').count()
     pourcentage = int((float(paidInvoices)/invoices)*100)    
     pourcentage = str(pourcentage) + "%"
+    # Assuming you have a queryset of Invoice objects
+    invoicesex = Invoice.objects.all()
 
+    # Group the invoices by day of date_created and count the number of invoices for each day
+    invoices_by_day = invoicesex.annotate(day=TruncDate('date_created')).values('day').annotate(count=Count('id'))
+    unique_days = []
+    invoices_counts = []
+    for entry in invoices_by_day:
+        unique_days.append(entry['day'])
+        invoices_counts.append(entry['count'])
     context = {}
     context['products'] = products
     context['clients'] = clients
     context['invoices'] = invoices
     context['paidInvoices'] = paidInvoices
     context['pourcentagePaidinvoices'] = pourcentage
+    context['days'] = unique_days
+    context['invoices_day'] = invoices_counts
     return render(request, 'invoice/dashboard.html', context)
 
 
