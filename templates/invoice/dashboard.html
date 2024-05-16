@@ -4,6 +4,7 @@
 {% load crispy_forms_tags %}
 
 
+
 {% block main %}
 
 
@@ -81,7 +82,47 @@
 
 
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	<script src="{% static 'assets/js/script.js' %}"></script>
+	<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const allProgress = document.querySelectorAll('main .card .progress');
+
+    allProgress.forEach(item => {
+        item.style.setProperty('--value', item.dataset.value);
+    });
+
+    var days = JSON.parse('{{ days|safe }}');
+    var invoicesCounts = JSON.parse('{{ invoices_day|safe }}');
+
+    var options = {
+        series: [{
+            name: 'Invoices',
+            data: invoicesCounts
+        }],
+        chart: {
+            height: 350,
+            type: 'area'
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            type: 'datetime',
+            categories: days
+        },
+        tooltip: {
+            x: {
+                format: 'dd/MM/yy'
+            },
+        },
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+});
+</script>
 
 
 

@@ -16,6 +16,7 @@ from uuid import uuid4
 from django.http import HttpResponse
 
 import pdfkit
+import json
 from django.template.loader import get_template
 import os
 
@@ -82,19 +83,16 @@ def dashboard(request):
 
     # Group the invoices by day of date_created and count the number of invoices for each day
     invoices_by_day = invoicesex.annotate(day=TruncDate('date_created')).values('day').annotate(count=Count('id'))
-    unique_days = []
-    invoices_counts = []
-    for entry in invoices_by_day:
-        unique_days.append(entry['day'])
-        invoices_counts.append(entry['count'])
+    unique_days = [entry['day'].strftime('%Y-%m-%d') for entry in invoices_by_day]
+    invoices_counts = [entry['count'] for entry in invoices_by_day]
     context = {}
     context['products'] = products
     context['clients'] = clients
     context['invoices'] = invoices
     context['paidInvoices'] = paidInvoices
     context['pourcentagePaidinvoices'] = pourcentage
-    context['days'] = unique_days
-    context['invoices_day'] = invoices_counts
+    context['days'] = json.dumps(unique_days)
+    context['invoices_day'] = json.dumps(invoices_counts)
     return render(request, 'invoice/dashboard.html', context)
 
 
